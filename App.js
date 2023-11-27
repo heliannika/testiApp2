@@ -3,6 +3,8 @@ import { StyleSheet, Text, View, SafeAreaView, FlatList, ActivityIndicator } fro
 
 export default function App() {
 
+  // Helsinki
+
   const [data, setData] = useState([]);
   const [vaestotiheys, setVaestotiheys] = useState([]);
   const [asunnot, setAsunnot] = useState([]);
@@ -10,6 +12,10 @@ export default function App() {
   const [tyoikaiset, setTyoikaiset] = useState([]);
   const [tyopaikat, setTyopaikat] = useState([]);
   const [tyovoima, setTyovoima] = useState([]);
+  const [ikaryhmittain, setIkaryhmittain] = useState([]);
+  const [spjaikavakiluku, setSpjaikavakiluku] = useState([]);
+  const [spjassvakiluku, setSpjassvakiluku] = useState([]);
+  const [vaestonennuste, setVaestonennuste] = useState([]);
 
   const koulutusvuosia = () => {
     fetch("https://stat.hel.fi:443/api/v1/fi/Nordstat/6_Koulutustaso/6-1NS_Vaeston_koulutus.px", {
@@ -438,6 +444,197 @@ const vaestotiheydet = () => {
       .then((json) => setTyovoima(json.dataset.value));
   }
 
+  const vaestoikaryhmittain = () => {
+    fetch("https://stat.hel.fi:443/api/v1/fi/Nordstat/2_Vaesto/2-1NS_Vaesto_ikaryhmittan.px", {
+      method: "POST",
+      body: JSON.stringify({
+        "query": [
+          {
+            "code": "Alue",
+            "selection": {
+              "filter": "agg:Suomi.agg",
+              "values": [
+                "3"
+              ]
+            }
+          },
+          {
+            "code": "Ikä",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "020",
+                "030",
+                "040"
+              ]
+            }
+          },
+          {
+            "code": "Vuosi",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "2022"
+              ]
+            }
+          }
+        ],
+        "response": {
+          "format": "json-stat"
+        }
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+      .then((response) => response.json())
+      .then((json) => setIkaryhmittain(json.dataset.value));
+  }
+
+  const vakilukuikajasp = () => {
+    fetch("https://stat.hel.fi:443/api/v1/fi/Nordstat/2_Vaesto/2-2NS_Vaesto_ian_ja_sukupuolen_mukaan.px", {
+      method: "POST",
+      body: JSON.stringify({
+        "query": [
+          {
+            "code": "Alue",
+            "selection": {
+              "filter": "agg:Suomi.agg",
+              "values": [
+                "3"
+              ]
+            }
+          },
+          {
+            "code": "Ikä",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "999V"
+              ]
+            }
+          },
+          {
+            "code": "Sukupuoli",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "00"
+              ]
+            }
+          },
+          {
+            "code": "Vuosi",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "2022"
+              ]
+            }
+          }
+        ],
+        "response": {
+          "format": "json-stat"
+        }
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+      .then((response) => response.json())
+      .then((json) => setSpjaikavakiluku(json.dataset.value));
+  }  
+
+  const vakilukuspjass = () => {
+    fetch("https://stat.hel.fi:443/api/v1/fi/Nordstat/2_Vaesto/2-3NS_Vaesto_sukupuolen_ja_siviilisaadyn_mukaan.px", {
+      method: "POST",
+      body: JSON.stringify({
+        "query": [
+          {
+            "code": "Alue",
+            "selection": {
+              "filter": "agg:Suomi.agg",
+              "values": [
+                "3"
+              ]
+            }
+          },
+          {
+            "code": "Siviilisääty",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "12"
+              ]
+            }
+          },
+          {
+            "code": "Sukupuoli",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "00"
+              ]
+            }
+          },
+          {
+            "code": "Vuosi",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "2022"
+              ]
+            }
+          }
+        ],
+        "response": {
+          "format": "json-stat"
+        }
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+      .then((response) => response.json())
+      .then((json) => setSpjassvakiluku(json.dataset.value));
+  }  
+
+  const vaestonkehitysjaennuste = () => {
+    fetch("https://stat.hel.fi:443/api/v1/fi/Nordstat/2_Vaesto/2-4NS_Vaestokehitys_ja_ennuste.px", {
+      method: "POST",
+      body: JSON.stringify({
+        "query": [
+          {
+            "code": "Alue",
+            "selection": {
+              "filter": "agg:Suomi.agg",
+              "values": [
+                "3"
+              ]
+            }
+          },
+          {
+            "code": "Vuosi",
+            "selection": {
+              "filter": "item",
+              "values": [
+                "2050"
+              ]
+            }
+          }
+        ],
+        "response": {
+          "format": "json-stat"
+        }
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+      .then((response) => response.json())
+      .then((json) => setVaestonennuste(json.dataset.value));
+  }
+
   useEffect(() => {
     koulutusvuosia()
   }, [])
@@ -466,6 +663,22 @@ const vaestotiheydet = () => {
     tyollinentyovoima()
   }, [])
 
+  useEffect(() => {
+    vaestoikaryhmittain()
+  }, [])
+
+  useEffect(() => {
+    vakilukuikajasp()
+  }, [])
+
+  useEffect(() => {
+    vakilukuspjass()
+  }, [])
+
+  useEffect(() => {
+    vaestonkehitysjaennuste()
+  }, [])
+
   return(
     <View>
       <Text>Koulutusvuosia</Text>
@@ -482,6 +695,14 @@ const vaestotiheydet = () => {
       <Text>{tyopaikat}</Text>
       <Text>Työvoima</Text>
       <Text>{tyovoima}</Text>
+      <Text>Väestö ikäryhmittäin</Text>
+      <Text>{ikaryhmittain}</Text>
+      <Text>Väkiluku iän ja sukupuolen mukaan</Text>
+      <Text>{spjaikavakiluku}</Text>
+      <Text>Väkiluku sukupuolen ja siviilisäädyn mukaan</Text>
+      <Text>{spjassvakiluku}</Text>
+      <Text>Väestön kehitys ja ennuste</Text>
+      <Text>{vaestonennuste}</Text>
     </View>
   )
 }
